@@ -54,14 +54,19 @@ def register():
         if existing_user:
             flash("Пользователь с таким логином уже существует")
             return redirect(url_for('register'))
+        
         new_user = User(
             username=form.username.data,
             password_hash=generate_password_hash(form.password.data)
         )
         db.session.add(new_user)
         db.session.commit()
-        flash("Регистрация прошла успешно! Войдите в систему.")
-        return redirect(url_for('login'))
+
+        # Автоматический вход после регистрации
+        session['user_id'] = new_user.id
+
+        flash("Регистрация прошла успешно! Вы вошли в систему.")
+        return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
 
