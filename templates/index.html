@@ -43,7 +43,7 @@
                 <h2 class="accordion-header" id="heading{{ loop.index }}">
                     <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
-                        {{ date | datetime_rus }}
+                        {{ date | datetimeformat }}
                     </button>
                 </h2>
                 <div id="collapse{{ loop.index }}"
