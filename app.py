@@ -23,6 +23,11 @@ class User(db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
 
 # --- Формы ---
+class RegistrationForm(FlaskForm):
+    username = StringField('Логин', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    submit = SubmitField('Зарегистрироваться')
+
 class LoginForm(FlaskForm):
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -40,6 +45,25 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash("Пользователь с таким логином уже существует")
+            return redirect(url_for('register'))
+        new_user = User(
+            username=form.username.data,
+            password_hash=generate_password_hash(form.password.data)
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash("Регистрация прошла успешно! Войдите в систему.")
+        return redirect(url_for('login'))
+    return render_template('register.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
