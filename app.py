@@ -34,7 +34,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 class EditFeedingForm(FlaskForm):
-    timestamp = DateTimeField('Время кормления', validators=[DataRequired()], format='%Y-%m-%d %H:%M:%S')
+    timestamp = DateTimeField('Время кормления', validators=[DataRequired()], format='%d.%m.%Y %H:%M:%S')
     submit = SubmitField('Сохранить')
 
 # --- Авторизация ---
@@ -100,7 +100,7 @@ def index():
     feedings = Feeding.query.order_by(Feeding.timestamp.desc()).all()
     grouped = {}
     for f in feedings:
-        date_str = f.timestamp.strftime("%Y-%m-%d")
+        date_str = f.timestamp.strftime("%d.%m.%Y")
         grouped.setdefault(date_str, []).append(f)
 
     edit_form = EditFeedingForm()
@@ -127,6 +127,12 @@ def delete(id):
     db.session.commit()
     flash('Запись удалена!')
     return redirect(url_for('index'))
+
+@app.template_filter('datetime_rus')
+def datetime_rus(value):
+    return value.strftime('%d.%m.%Y %H:%M') if value else ''
+
+
 
 # --- Инициализация базы ---
 if __name__ == '__main__':

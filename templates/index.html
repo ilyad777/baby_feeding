@@ -43,7 +43,7 @@
                 <h2 class="accordion-header" id="heading{{ loop.index }}">
                     <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
                         data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
-                        {{ date }}
+                        {{ date | datetime_rus }}
                     </button>
                 </h2>
                 <div id="collapse{{ loop.index }}"
@@ -54,11 +54,11 @@
                             {% for f in items %}
                             <li
                                 class="list-group-item d-flex justify-content-between align-items-center {% if loop.first %}latest{% endif %}">
-                                {{ f.timestamp.strftime("%H:%M:%S") }}
+                                {{ f.timestamp.strftime("%H:%M") }}
                                 <div>
                                     <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal"
                                         data-bs-target="#editModal" data-id="{{ f.id }}"
-                                        data-time="{{ f.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}">Редактировать</button>
+                                        data-time="{{ f.timestamp.strftime('%d.%m.%Y %H:%M') }}">Редактировать</button>
                                     <form method="POST" action="{{ url_for('delete', id=f.id) }}"
                                         style="display:inline;">
                                         <button type="submit" class="btn btn-sm btn-danger"
@@ -86,7 +86,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        {{ edit_form.timestamp(class="form-control") }}
+                        {{ edit_form.timestamp(class="form-control", type="datetime-local", value=feeding.timestamp.strftime('%Y-%m-%dT%H:%M')) }}
                     </div>
                     <div class="modal-footer">
                         {{ edit_form.submit(class="btn btn-primary") }}
