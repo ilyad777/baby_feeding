@@ -12,6 +12,7 @@ app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feeding.db'
 db = SQLAlchemy(app)
 
+
 # --- Модели ---
 class Feeding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,7 +35,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 class EditFeedingForm(FlaskForm):
-    timestamp = DateTimeField('Время кормления', validators=[DataRequired()], format='%d.%m.%Y %H:%M:%S')
+    timestamp = DateTimeField('Время кормления', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
     submit = SubmitField('Сохранить')
 
 # --- Авторизация ---
@@ -98,6 +99,8 @@ def index():
         return redirect(url_for('index'))
 
     feedings = Feeding.query.order_by(Feeding.timestamp.desc()).all()
+    for feeding in feedings:
+        feeding.timestamp_edit = feeding.timestamp.strftime('%Y-%m-%dT%H:%M')
     grouped = {}
     for f in feedings:
         date_str = f.timestamp.strftime("%d.%m.%Y")
@@ -112,6 +115,7 @@ def index():
 def edit(id):
     feeding = Feeding.query.get_or_404(id)
     form = EditFeedingForm()
+    print(form.timestamp)
     if form.validate_on_submit():
         feeding.timestamp = form.timestamp.data
         db.session.commit()
