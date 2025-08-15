@@ -89,15 +89,26 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
 
+@app.route('/add', methods=['POST'])
+@login_required
+def add():
+    from datetime import datetime
+    ts_str = request.form.get('timestamp')
+    timestamp = datetime.strptime(ts_str, '%Y-%m-%dT%H:%M') if ts_str else datetime.now()
+    feeding = Feeding(timestamp=timestamp)
+    db.session.add(feeding)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 # --- Главная страница ---
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-    if request.method == 'POST':
-        feeding = Feeding()
-        db.session.add(feeding)
-        db.session.commit()
-        return redirect(url_for('index'))
+    # if request.method == 'POST':
+    #     feeding = Feeding()
+    #     db.session.add(feeding)
+    #     db.session.commit()
+    #     return redirect(url_for('index'))
 
     feedings = Feeding.query.order_by(Feeding.id.desc()).all()
     grouped = {}
