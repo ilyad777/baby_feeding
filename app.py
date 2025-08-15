@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from functools import wraps
+from datetime import timezone, timedelta
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -16,7 +17,7 @@ db = SQLAlchemy(app)
 # --- Модели ---
 class Feeding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -98,9 +99,7 @@ def index():
         db.session.commit()
         return redirect(url_for('index'))
 
-    feedings = Feeding.query.order_by(Feeding.timestamp.desc()).all()
-    for feeding in feedings:
-        feeding.timestamp_edit = feeding.timestamp.strftime('%Y-%m-%dT%H:%M')
+    feedings = Feeding.query.order_by(Feeding.id.desc()).all()
     grouped = {}
     for f in feedings:
         date_str = f.timestamp.strftime("%d.%m.%Y")
